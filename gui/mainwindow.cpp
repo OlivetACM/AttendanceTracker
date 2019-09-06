@@ -303,7 +303,7 @@ void MainWindow::getAttendanceFilename() {
         }
         else {
             qDebug() << "Event file missing";
-            if (!input.open(QIODevice::WriteOnly | QIODevice::Text))
+            if (!input.open(QIODevice::Append | QIODevice::Text))
                 qDebug() << "Failed to open:" << input.errorString();
             else {
                 //input.write("testing");
