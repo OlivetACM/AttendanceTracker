@@ -94,10 +94,6 @@ void MainWindow::gatherIDs() {
     // Open a Members CSV
     qDebug() << "Loading in" << memberFile;
     allMembers = loadMembers(memberFile);
-    qDebug() << allMembers;
-    // Also open the file for writing
-    //memberFile.setFileName("../members.csv");
-    //memberFile.open(QIODevice::WriteOnly | QIODevice::Text);
 }
 
 void MainWindow::startAttendance() {
@@ -187,21 +183,14 @@ void MainWindow::manual(QString id) {
                 writeTo.open(QIODevice::Append | QIODevice::Text);
                 qDebug() << "Writing to CSV{"+memberFile+"}";
                 QTextStream output(&writeTo);
+                //Check to see if we need the header
                 if (!fileExists) {
-                    // Write Categories
                     output << "Last Name,First Name,ID" << "\n";
                 }
-                //Check to see if we need the header
-                if (!fileExists && writeTo.isOpen()) {
-                    qDebug() << "memberFile open - attempting to write header";
-                    output << "Last Name,First Name,Id" << "\n";
-                }
-                if (fileExists && writeTo.isOpen()) {
-                        qDebug() << "memberFile open - attempting to write data";
-                        output << newMember["last"] + "," +
-                                newMember["first"] + "," +
-                                newMember["id"] + "\n";
-                }
+                output << newMember["last"] + "," +
+                        newMember["first"] + "," +
+                        newMember["id"] + "\n";
+
                 qDebug() << "members.csv size:";
                 qDebug() << csvInfo.size();
                 // Add to memory
@@ -210,7 +199,7 @@ void MainWindow::manual(QString id) {
                 temp["last"] = newMember["last"];
                 temp["present"] = "false";
                 allMembers[newMember["id"]] = temp;
-                qDebug() << QString("Updated Members:\n") << allMembers;
+                qDebug() << QString("Updated Members:") << allMembers;
                 writeTo.close();
             }
             lastId = newMember["id"];
@@ -241,15 +230,10 @@ void MainWindow::mark() {
             QString filename = attendPath + attendFile + ".csv";
             qDebug() << "Writing to CSV{"+filename+"}";
             QFileInfo csvInfo(filename);
-            bool fileExists = csvInfo.exists() && csvInfo.isFile();
+            //bool fileExists = csvInfo.exists() && csvInfo.isFile();
             QFile writeTo(filename);
             writeTo.open(QIODevice::Append | QIODevice::Text);
-            qDebug() << "Writing to CSV{"+filename+"}";
             QTextStream output(&writeTo);
-            if (!fileExists) {
-                // Write Categories
-                output << "Last Name,First Name,ID" << "\n";
-            }
             QString last = allMembers[lastId]["last"];
             QString first = allMembers[lastId]["first"];
             output << last + ","
@@ -259,7 +243,7 @@ void MainWindow::mark() {
             // Show popup confirming
             //
             writeTo.close();
-            qDebug() << "Writing to CSV{"+filename+"}";
+            qDebug() << QString("Updated Members:") << allMembers;
 
         }
         else if (markType == "xlsx") {
@@ -306,11 +290,10 @@ void MainWindow::getAttendanceFilename() {
             if (!input.open(QIODevice::Append | QIODevice::Text))
                 qDebug() << "Failed to open:" << input.errorString();
             else {
-                //input.write("testing");
-                input.close();
-            }
-            if(input.exists())
-                qDebug("Event file created");
+                     QTextStream output(&input);
+                     output << "Last Name,First Name,ID" << "\n";
+                }
+            input.close();
         }
     }
 }
